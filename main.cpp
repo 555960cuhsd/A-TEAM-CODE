@@ -1,4 +1,5 @@
 #include "main.h"
+#include <chrono>
 
 /**
  * A callback function for LLEMU's center button.
@@ -60,9 +61,108 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
+#define Motor_Port 1 
+#define Motor_Port2 2
+#define DIGITAL_SENSOR_PORT 'B'
+#define EXPANSIONPNEUMATIC 'A'
+#define IntakeMotor_PORT 3
+#define IntakeMotor_PORT1 8
+#define LEFT_WHEELS_PORT 4
+#define RIGHT_WHEELS_PORT 5
+#define LEFT_WHEELS_BACK_PORT 6
+#define RIGHT_WHEELS_BACK_PORT 7
+#define ROLLER_MOTOR_PORT 9
+void turn_left() {
+ pros::Task::delay(10);
+  pros::Motor left_wheels (LEFT_WHEELS_PORT);
+  pros::Motor right_wheels (RIGHT_WHEELS_PORT, true); // This reverses the motor
+  pros::Motor left_wheels_back (LEFT_WHEELS_BACK_PORT );
+  pros::Motor right_wheels_back (RIGHT_WHEELS_BACK_PORT, true);
+  pros::Motor roller (ROLLER_MOTOR_PORT, true);
+  pros::Motor_Group left_drivetrain({right_wheels,right_wheels_back});
+  pros::Motor_Group right_drivetrain({left_wheels,left_wheels_back});
+  pros::Motor_Group all_drivetrain({left_wheels,right_wheels,left_wheels_back,right_wheels_back});
+right_drivetrain.move_velocity(300);
+left_drivetrain.move_velocity(-300);
+pros::delay(500);
+right_drivetrain.move_velocity(0);
+left_drivetrain.move_velocity(0);
+}
+void turn_right() {
+   pros::Task::delay(10);
+  pros::Motor left_wheels (LEFT_WHEELS_PORT);
+  pros::Motor right_wheels (RIGHT_WHEELS_PORT, true); // This reverses the motor
+  pros::Motor left_wheels_back (LEFT_WHEELS_BACK_PORT );
+  pros::Motor right_wheels_back (RIGHT_WHEELS_BACK_PORT, true);
+  pros::Motor roller (ROLLER_MOTOR_PORT, true);
+  pros::Motor_Group left_drivetrain({right_wheels,right_wheels_back});
+  pros::Motor_Group right_drivetrain({left_wheels,left_wheels_back});
+  pros::Motor_Group all_drivetrain({left_wheels,right_wheels,left_wheels_back,right_wheels_back});
+  left_drivetrain.move_velocity(300);
+  right_drivetrain.move_velocity(-300);
+  pros::delay(500);
+  left_drivetrain.move_velocity(0);
+  right_drivetrain.move_velocity(0);
+}
+void spin_roller() {
+	  pros::Motor roller (ROLLER_MOTOR_PORT, true);
+	  roller.move_velocity(150);
+	  pros::delay(500);
+	  roller.move_velocity(0);
+}
+void move_bot_forward() {
+   pros::Task::delay(10);
+  pros::Motor left_wheels (LEFT_WHEELS_PORT);
+  pros::Motor right_wheels (RIGHT_WHEELS_PORT, true); // This reverses the motor
+  pros::Motor left_wheels_back (LEFT_WHEELS_BACK_PORT );
+  pros::Motor right_wheels_back (RIGHT_WHEELS_BACK_PORT, true);
+  pros::Motor roller (ROLLER_MOTOR_PORT, true);
+  pros::Motor_Group left_drivetrain({right_wheels,right_wheels_back});
+  pros::Motor_Group right_drivetrain({left_wheels,left_wheels_back});
+  pros::Motor_Group all_drivetrain({left_wheels,right_wheels,left_wheels_back,right_wheels_back});
+  all_drivetrain.move_velocity(300);
+  pros::delay(500);
+  all_drivetrain.move_velocity(0);
+}
 void autonomous() {
+  pros::Task::delay(10);
+  pros::Motor left_wheels (LEFT_WHEELS_PORT);
+  pros::Motor right_wheels (RIGHT_WHEELS_PORT, true); // This reverses the motor
+  pros::Motor left_wheels_back (LEFT_WHEELS_BACK_PORT );
+  pros::Motor right_wheels_back (RIGHT_WHEELS_BACK_PORT, true);
+  pros::Motor roller (ROLLER_MOTOR_PORT, true);
+  pros::ADIDigitalOut pistonExpansion (EXPANSIONPNEUMATIC);
+  pros::ADIDigitalOut pistonFlywheel (DIGITAL_SENSOR_PORT);
+  pros::Motor_Group left_drivetrain({right_wheels,right_wheels_back});
+  pros::Motor_Group right_drivetrain({left_wheels,left_wheels_back});
+  pros::Motor_Group all_drivetrain({left_wheels,right_wheels,left_wheels_back,right_wheels_back});
+  //Try code if methods don't work
 
-	
+/**
+right_drivetrain.move_velocity(300);
+left_drivetrain.move_velocity(-300);
+pros::delay(500);
+right_drivetrain.move_velocity(0);
+left_drivetrain.move_velocity(0);
+pros::delay(1);
+*/
+pistonExpansion.set_value(false);
+left_drivetrain.move_velocity(450);
+right_drivetrain.move_velocity(300);
+pros::delay(500);
+left_drivetrain.move_velocity(450);
+right_drivetrain.move_velocity(300);
+roller.move_velocity(180);
+pros::delay(1000);
+roller.move_velocity(0);
+all_drivetrain.move_velocity(0);
+pros::delay(1);
+//Not useful anymore; drivetrain and roller activated at the same time
+/**
+roller.move_velocity(150);
+pros::delay(500);
+roller.move_velocity(0);
+*/
 }
 
 /**
@@ -78,16 +178,6 @@ void autonomous() {
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
-#define Motor_Port 1 
-#define Motor_Port2 2
-#define DIGITAL_SENSOR_PORT 'A'
-#define EXPANSIONPNEUMATIC 'B'
-#define IntakeMotor_PORT 3
-#define IntakeMotor_PORT1 8
-#define LEFT_WHEELS_PORT 4
-#define RIGHT_WHEELS_PORT 5
-#define LEFT_WHEELS_BACK_PORT 6
-#define RIGHT_WHEELS_BACK_PORT 7
 
 void opcontrol() {
   pros::Motor Motor1 (Motor_Port, true);
@@ -98,59 +188,69 @@ void opcontrol() {
   pros::Motor intake1 (IntakeMotor_PORT1, true);
   pros::Motor left_wheels (LEFT_WHEELS_PORT);
   pros::Motor right_wheels (RIGHT_WHEELS_PORT, true); // This reverses the motor
-  pros::Motor left_wheels_back (LEFT_WHEELS_BACK_PORT);
+  pros::Motor left_wheels_back (LEFT_WHEELS_BACK_PORT );
   pros::Motor right_wheels_back (RIGHT_WHEELS_BACK_PORT, true);
+  pros::Motor roller (ROLLER_MOTOR_PORT, true);
   pros::Controller master (CONTROLLER_MASTER);
-  bool isPressedExpansion = master.get_digital(DIGITAL_A);
+  bool isPressedExpansion = master.get_digital(DIGITAL_Y);
   bool isPressedFlywheel = master.get_digital(DIGITAL_B);
-
+  //added to keep expansion from shooting out
+  pistonExpansion.set_value(false);
   while (true) {
-
-	isPressedExpansion = master.get_digital(DIGITAL_A);
+  pistonExpansion.set_value(false);
+	isPressedExpansion = master.get_digital(DIGITAL_Y);
 	isPressedFlywheel = master.get_digital(DIGITAL_B);
 
 	if (master.get_digital(DIGITAL_R1)) {
-		Motor1.move_velocity(250);
-		Motor2.move_velocity(250);
+    //Motor1 was moving at 100 to whoever made it 100; let me know if it was intentional
+		Motor1.move_velocity(100);
+		Motor2.move_velocity(100);
 	} else {
 		Motor1.move_velocity(0);
 		Motor2.move_velocity(0);
 	}
 
-	if (master.get_digital(DIGITAL_LEFT)) {
-		//intake.move(127);	
-		intake.move_velocity(-600);
-	} else {
-		//intake.move(0);
-		intake.move_velocity(0);
+  if (master.get_digital(DIGITAL_L2)) {
+      //intake.move(127); 
+      roller.move(-50);
+  } else {
+      //intake.move(0);
+      roller.move(0);
 	}
 
-	if (master.get_digital(DIGITAL_RIGHT)) {
+	if (master.get_digital(DIGITAL_L1)) {
 		//intake.move(-127);
-		intake.move_velocity(-600);
+		intake.move_velocity(-300);
 	} else {
 		//intake.move(0);
 		intake.move_velocity(0);
 	}
 
+	if (master.get_digital(DIGITAL_R2)) {
+		roller.move_velocity(100);
+	} else {
+		roller.move_velocity(0);
+	}
+
+
+//Reversed because pnuematics is weird
 	if(isPressedExpansion){
 		pistonExpansion.set_value(true);
 		pros::delay(2);
 	} else if (!isPressedExpansion) {
 		pistonExpansion.set_value(false);
-	}
+	} 
 
 	if (isPressedFlywheel) {
-		pistonFlywheel.set_value(false);
+		pistonFlywheel.set_value(true);
 		pros::delay(2);
 	} else if (!isPressedFlywheel){
-		pistonFlywheel.set_value(true);
-	}
-    
+		pistonFlywheel.set_value(false);
+	}    
 
-	left_wheels.move(master.get_analog(ANALOG_LEFT_Y));
-	left_wheels_back.move(master.get_analog(ANALOG_LEFT_Y));
-    right_wheels.move(master.get_analog(ANALOG_RIGHT_Y));
+	left_wheels.move(master.get_analog(ANALOG_LEFT_Y) * 1.5);
+	left_wheels_back.move(master.get_analog(ANALOG_LEFT_Y) * 1.5);
+  right_wheels.move(master.get_analog(ANALOG_RIGHT_Y));
 	right_wheels_back.move(master.get_analog(ANALOG_RIGHT_Y));
 	
     pros::delay(2);

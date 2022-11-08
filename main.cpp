@@ -61,17 +61,17 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-#define Motor_Port 1 
-#define Motor_Port2 2
+#define Motor_Port 17 
+#define Motor_Port2 11
 #define DIGITAL_SENSOR_PORT 'B'
 #define EXPANSIONPNEUMATIC 'A'
-#define IntakeMotor_PORT 3
+#define IntakeMotor_PORT 15
 #define IntakeMotor_PORT1 8
-#define LEFT_WHEELS_PORT 4
-#define RIGHT_WHEELS_PORT 5
-#define LEFT_WHEELS_BACK_PORT 6
-#define RIGHT_WHEELS_BACK_PORT 7
-#define ROLLER_MOTOR_PORT 9
+#define LEFT_WHEELS_PORT 13
+#define RIGHT_WHEELS_PORT 20
+#define LEFT_WHEELS_BACK_PORT 14
+#define RIGHT_WHEELS_BACK_PORT 11
+#define ROLLER_MOTOR_PORT 18
 void turn_left() {
  pros::Task::delay(10);
   pros::Motor left_wheels (LEFT_WHEELS_PORT);

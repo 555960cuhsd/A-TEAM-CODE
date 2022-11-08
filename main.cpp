@@ -180,8 +180,8 @@ roller.move_velocity(0);
  */
 
 void opcontrol() {
-  pros::Motor Motor1 (Motor_Port, true);
-  pros::Motor Motor2 (Motor_Port2);
+  pros::Motor rightFlywheel (Motor_Port, true);
+  pros::Motor leftFlywheel (Motor_Port2);
   pros::ADIDigitalOut pistonFlywheel (DIGITAL_SENSOR_PORT);
   pros::ADIDigitalOut pistonExpansion (EXPANSIONPNEUMATIC);
   pros::Motor intake (IntakeMotor_PORT);
@@ -203,11 +203,11 @@ void opcontrol() {
 
 	if (master.get_digital(DIGITAL_R1)) {
     //Motor1 was moving at 100 to whoever made it 100; let me know if it was intentional
-		Motor1.move_velocity(100);
-		Motor2.move_velocity(100);
+		rightFlywheel.move_velocity(130);
+		leftFlywheel.move_velocity(100);
 	} else {
-		Motor1.move_velocity(0);
-		Motor2.move_velocity(0);
+		rightFlywheel.move_velocity(0);
+		leftFlywheel.move_velocity(0);
 	}
 
   if (master.get_digital(DIGITAL_L2)) {

@@ -1,4 +1,5 @@
 #include "main.h"
+#include "pros/motors.hpp"
 #include <chrono>
 
 /**
@@ -61,16 +62,15 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-#define Motor_Port 17 
-#define Motor_Port2 11
+#define Motor_Port 11 
+#define Motor_Port2 17
 #define DIGITAL_SENSOR_PORT 'B'
 #define EXPANSIONPNEUMATIC 'A'
-#define IntakeMotor_PORT 15
-#define IntakeMotor_PORT1 8
+#define IntakeMotor_PORT 16
 #define LEFT_WHEELS_PORT 13
 #define RIGHT_WHEELS_PORT 20
 #define LEFT_WHEELS_BACK_PORT 14
-#define RIGHT_WHEELS_BACK_PORT 11
+#define RIGHT_WHEELS_BACK_PORT 19
 #define ROLLER_MOTOR_PORT 18
 void turn_left() {
  pros::Task::delay(10);
@@ -185,12 +185,12 @@ void opcontrol() {
   pros::ADIDigitalOut pistonFlywheel (DIGITAL_SENSOR_PORT);
   pros::ADIDigitalOut pistonExpansion (EXPANSIONPNEUMATIC);
   pros::Motor intake (IntakeMotor_PORT);
-  pros::Motor intake1 (IntakeMotor_PORT1, true);
   pros::Motor left_wheels (LEFT_WHEELS_PORT);
   pros::Motor right_wheels (RIGHT_WHEELS_PORT, true); // This reverses the motor
   pros::Motor left_wheels_back (LEFT_WHEELS_BACK_PORT );
   pros::Motor right_wheels_back (RIGHT_WHEELS_BACK_PORT, true);
   pros::Motor roller (ROLLER_MOTOR_PORT, true);
+  pros:: Motor rollerReverse (ROLLER_MOTOR_PORT);
   pros::Controller master (CONTROLLER_MASTER);
   bool isPressedExpansion = master.get_digital(DIGITAL_Y);
   bool isPressedFlywheel = master.get_digital(DIGITAL_B);
@@ -203,24 +203,22 @@ void opcontrol() {
 
 	if (master.get_digital(DIGITAL_R1)) {
     //Motor1 was moving at 100 to whoever made it 100; let me know if it was intentional
-		rightFlywheel.move_velocity(130);
-		leftFlywheel.move_velocity(100);
+		rightFlywheel.move_velocity(100);
+		leftFlywheel.move_velocity(80); //40 more rpm than right flywheel
 	} else {
 		rightFlywheel.move_velocity(0);
 		leftFlywheel.move_velocity(0);
 	}
 
   if (master.get_digital(DIGITAL_L2)) {
-      //intake.move(127); 
-      roller.move(-50);
+      roller.move_velocity(-50);
   } else {
-      //intake.move(0);
-      roller.move(0);
+      roller.move_velocity(0);
 	}
 
 	if (master.get_digital(DIGITAL_L1)) {
 		//intake.move(-127);
-		intake.move_velocity(-300);
+		intake.move_velocity(150);
 	} else {
 		//intake.move(0);
 		intake.move_velocity(0);
@@ -250,7 +248,7 @@ void opcontrol() {
 
 	left_wheels.move(master.get_analog(ANALOG_LEFT_Y) * 1.5);
 	left_wheels_back.move(master.get_analog(ANALOG_LEFT_Y) * 1.5);
-  right_wheels.move(master.get_analog(ANALOG_RIGHT_Y));
+  	right_wheels.move(master.get_analog(ANALOG_RIGHT_Y));
 	right_wheels_back.move(master.get_analog(ANALOG_RIGHT_Y));
 	
     pros::delay(2);
